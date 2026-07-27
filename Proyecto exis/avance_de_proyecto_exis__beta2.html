@@ -1,0 +1,1418 @@
+<!DOCTYPE html>           
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>// cuestionario_dev_web</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0e14;
+    --bg-panel:#11151c;
+    --bg-panel-2:#161b24;
+    --bg-input:#0d1117;
+    --border:#232938;
+    --border-soft:#1a1f2b;
+    --text:#e6e9ef;
+    --text-muted:#7c8494;
+    --text-dim:#4b5266;
+    --violet:#b794f6;
+    --green:#4ade80;
+    --red:#f87171;
+    --amber:#fbbf24;
+    --blue:#60a5fa;
+    --html-c:#fb923c;
+    --css-c:#60a5fa;
+    --js-c:#facc15;
+    --web-c:#b794f6;
+    --mono:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans:'Inter', -apple-system, system-ui, sans-serif;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.5;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(183,148,246,0.07), transparent 40%),
+      radial-gradient(circle at 85% 0%, rgba(96,165,250,0.06), transparent 35%);
+    pointer-events:none;
+    z-index:0;
+  }
+  .hidden{display:none !important;}
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:880px;
+    margin:0 auto;
+    padding:0 20px 60px;
+  }
+
+  /* ---------- Top tab bar (editor chrome) ---------- */
+  .editor-bar{
+    border-bottom:1px solid var(--border);
+    background:var(--bg-panel);
+    margin-bottom:32px;
+  }
+  .editor-bar-inner{
+    max-width:880px;
+    margin:0 auto;
+    padding:0 20px;
+    display:flex;
+    align-items:center;
+    gap:2px;
+  }
+  .dots{display:flex; gap:6px; padding:14px 14px 14px 0;}
+  .dots span{width:10px;height:10px;border-radius:50%;display:inline-block;}
+  .dots span:nth-child(1){background:#f87171;}
+  .dots span:nth-child(2){background:#fbbf24;}
+  .dots span:nth-child(3){background:#4ade80;}
+  .tab{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--text-muted);
+    padding:13px 16px;
+    border-right:1px solid var(--border);
+    cursor:default;
+    white-space:nowrap;
+  }
+  .tab.active{
+    color:var(--text);
+    background:var(--bg);
+    border-top:2px solid var(--violet);
+    margin-top:-1px;
+  }
+
+  h1,h2,h3{font-family:var(--sans); margin:0; font-weight:700;}
+  .hero{padding:8px 0 28px;}
+  .hero .eyebrow{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--green);
+    margin:0 0 10px;
+  }
+  .hero .eyebrow::before{content:"// "; color:var(--text-dim);}
+  .hero h1{font-size:30px; letter-spacing:-0.02em;}
+  .hero p{color:var(--text-muted); margin:10px 0 0; max-width:60ch; font-size:15px;}
+
+  /* ---------- Cards / panels ---------- */
+  .panel{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px;
+    margin-bottom:18px;
+  }
+  .panel-title{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    margin:0 0 16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .panel-title::before{content:"›"; color:var(--violet); font-size:16px;}
+
+  /* ---------- Stats row ---------- */
+  .stats-row{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:18px;}
+  .stat{
+    flex:1 1 140px;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+  }
+  .stat .num{font-family:var(--mono); font-size:26px; font-weight:700; color:var(--text);}
+  .stat .label{font-size:12.5px; color:var(--text-muted); margin-top:2px;}
+
+  /* ---------- Area chips ---------- */
+  .area-grid{display:flex; flex-wrap:wrap; gap:10px;}
+  .area-chip{
+    display:flex; align-items:center; gap:9px;
+    border:1px solid var(--border);
+    background:var(--bg-input);
+    border-radius:999px;
+    padding:9px 14px 9px 10px;
+    cursor:pointer;
+    user-select:none;
+    transition:border-color .15s, background .15s;
+  }
+  .area-chip .swatch{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .area-chip .name{font-size:13.5px; font-weight:600;}
+  .area-chip .count{font-family:var(--mono); font-size:12px; color:var(--text-muted);}
+  .area-chip.active{border-color:var(--violet); background:rgba(183,148,246,0.08);}
+  .area-chip.disabled{opacity:.4; cursor:default;}
+  .area-chip input{display:none;}
+
+  /* ---------- Form controls ---------- */
+  label{font-size:13px; color:var(--text-muted); font-weight:600; display:block; margin-bottom:7px;}
+  select, input[type=text], input[type=number], input[type=email], textarea{
+    width:100%;
+    background:var(--bg-input);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:11px 12px;
+    font-family:var(--sans);
+    font-size:14.5px;
+    outline:none;
+  }
+  select:focus, input:focus, textarea:focus{border-color:var(--violet); box-shadow:0 0 0 3px rgba(183,148,246,0.15);}
+  textarea{resize:vertical; min-height:64px;}
+  .field{margin-bottom:16px;}
+  .row{display:flex; gap:14px; flex-wrap:wrap;}
+  .row > .field{flex:1 1 180px;}
+  .hint{font-size:12.5px; color:var(--text-dim); margin-top:6px;}
+  .field-error{font-size:12.5px; color:var(--red); margin-top:6px; min-height:16px;}
+
+  /* ---------- Registro de participante ---------- */
+  .photo-upload{
+    display:flex; align-items:center; gap:16px;
+    border:1px dashed var(--border);
+    border-radius:10px;
+    padding:14px;
+  }
+  .photo-preview-wrap{
+    width:72px; height:72px; border-radius:50%;
+    background:var(--bg-input);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden; flex-shrink:0;
+  }
+  .photo-preview-wrap img{width:100%; height:100%; object-fit:cover;}
+  .photo-placeholder{font-size:22px; color:var(--text-dim);}
+  .photo-upload-actions{display:flex; flex-direction:column; gap:6px;}
+  .participant-card{
+    display:flex; align-items:center; gap:14px;
+    margin-bottom:16px;
+  }
+  .participant-card .photo-preview-wrap{width:56px; height:56px;}
+  .participant-card .p-name{font-weight:700; font-size:15px;}
+  .participant-card .p-meta{font-size:12.5px; color:var(--text-muted); font-family:var(--mono);}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:14.5px;
+    border-radius:8px;
+    padding:12px 20px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .1s, filter .15s;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--violet); color:#1a0f2e;}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.45; cursor:not-allowed; filter:none;}
+  .btn-ghost{background:transparent; border-color:var(--border); color:var(--text);}
+  .btn-ghost:hover{border-color:var(--text-muted);}
+  .btn-sm{padding:8px 13px; font-size:13px;}
+  .btn-danger{background:transparent; border-color:rgba(248,113,113,.4); color:var(--red);}
+  .btn-danger:hover{background:rgba(248,113,113,.08);}
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;}
+
+  /* ---------- Quiz screen ---------- */
+  .quiz-top{display:flex; justify-content:space-between; align-items:center; gap:14px; margin-bottom:16px; flex-wrap:wrap;}
+  .progress-track{
+    flex:1 1 220px;
+    height:6px;
+    background:var(--bg-panel-2);
+    border-radius:99px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .progress-fill{height:100%; background:linear-gradient(90deg, var(--violet), var(--blue)); border-radius:99px; transition:width .2s;}
+  .progress-label{font-family:var(--mono); font-size:12.5px; color:var(--text-muted); white-space:nowrap;}
+
+  /* ---------- Timer por pregunta ---------- */
+  .quiz-timer{
+    font-family:var(--mono);
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    background:var(--bg-input);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:6px 12px;
+    white-space:nowrap;
+    transition:color .15s, border-color .15s, background .15s;
+  }
+  .quiz-timer.low{
+    color:var(--red);
+    border-color:rgba(248,113,113,.5);
+    background:rgba(248,113,113,0.08);
+  }
+
+  /* ---------- Anuncio de inicio ---------- */
+  .announce-toast{
+    position:fixed;
+    top:26px;
+    left:50%;
+    transform:translateX(-50%) translateY(-14px);
+    z-index:50;
+    font-family:var(--mono);
+    font-size:14px;
+    font-weight:600;
+    color:var(--text);
+    background:var(--bg-panel);
+    border:1px solid var(--violet);
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+    border-radius:999px;
+    padding:12px 22px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    white-space:nowrap;
+  }
+  .announce-toast::before{content:"▶ "; color:var(--violet);}
+  .announce-toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  .fraud-notice{
+    border-color:rgba(248,113,113,.5);
+    background:rgba(248,113,113,0.08);
+    color:var(--red);
+    font-size:14px;
+    font-weight:600;
+  }
+
+  .q-card{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    display:flex;
+    overflow:hidden;
+  }
+  .q-gutter{
+    width:54px;
+    flex-shrink:0;
+    background:var(--bg-panel-2);
+    border-right:1px solid var(--border);
+    font-family:var(--mono);
+    color:var(--text-dim);
+    font-size:13px;
+    text-align:right;
+    padding:22px 10px 22px 0;
+  }
+  .q-body{padding:22px 22px 24px; flex:1; min-width:0;}
+  .q-meta{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .area-tag{
+    font-family:var(--mono); font-size:11.5px; font-weight:600;
+    padding:3px 9px; border-radius:5px;
+    border:1px solid currentColor;
+  }
+  .weight-tag{
+    font-family:var(--mono); font-size:12px; color:var(--green); opacity:.85;
+  }
+  .weight-tag::before{content:"// "; color:var(--text-dim);}
+  .q-text{font-size:18px; font-weight:600; margin:0 0 18px; line-height:1.45;}
+  .options{display:flex; flex-direction:column; gap:9px;}
+  .option{
+    display:flex; align-items:flex-start; gap:11px;
+    border:1px solid var(--border);
+    background:var(--bg-input);
+    border-radius:8px;
+    padding:12px 14px;
+    cursor:pointer;
+    font-size:14.5px;
+    transition:border-color .12s, background .12s;
+  }
+  .option:hover{border-color:var(--text-muted);}
+  .option .bracket{font-family:var(--mono); color:var(--text-dim); flex-shrink:0;}
+  .option.selected{border-color:var(--violet); background:rgba(183,148,246,0.08);}
+  .option.selected .bracket{color:var(--violet);}
+  .option.correct{border-color:var(--green); background:rgba(74,222,128,0.08);}
+  .option.correct .bracket{color:var(--green);}
+  .option.incorrect{border-color:var(--red); background:rgba(248,113,113,0.08);}
+  .option.incorrect .bracket{color:var(--red);}
+
+  .nav-row{display:flex; justify-content:space-between; align-items:center; margin-top:18px; gap:12px; flex-wrap:wrap;}
+  .dotnav{display:flex; flex-wrap:wrap; gap:5px; margin-top:14px;}
+  .dotnav button{
+    width:9px; height:9px; padding:0; border-radius:50%;
+    border:none; background:var(--border); cursor:pointer;
+  }
+  .dotnav button.answered{background:var(--text-muted);}
+  .dotnav button.current{background:var(--violet); width:20px; border-radius:5px;}
+
+  /* ---------- Results ---------- */
+  .score-block{text-align:center; padding:30px 20px 10px;}
+  .score-num{font-family:var(--mono); font-size:58px; font-weight:700; letter-spacing:-0.02em;}
+  .score-sub{font-family:var(--mono); font-size:13.5px; color:var(--text-muted); margin-top:6px;}
+  .test-line{font-family:var(--mono); font-size:14px; margin-top:18px;}
+  .test-line .pass{color:var(--green);}
+  .test-line .fail{color:var(--red);}
+
+  .area-bar-row{margin-bottom:14px;}
+  .area-bar-head{display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;}
+  .area-bar-head .nm{font-weight:600;}
+  .area-bar-head .pc{font-family:var(--mono); color:var(--text-muted);}
+  .area-bar-track{height:8px; background:var(--bg-panel-2); border-radius:99px; overflow:hidden; border:1px solid var(--border);}
+  .area-bar-fill{height:100%; border-radius:99px;}
+
+  .review-item{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:10px;
+    background:var(--bg-input);
+  }
+  .review-head{display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap;}
+  .review-q{font-weight:600; font-size:14.5px; margin:0 0 8px;}
+  .review-ans{font-size:13.5px; color:var(--text-muted);}
+  .review-ans b{color:var(--text); font-weight:600;}
+  .mark{font-family:var(--mono); font-weight:700;}
+  .mark.ok{color:var(--green);}
+  .mark.no{color:var(--red);}
+
+  /* ---------- Manage / add question ---------- */
+  .custom-list{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
+  .custom-row{
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    border:1px solid var(--border-soft);
+    border-radius:8px; padding:10px 12px;
+    background:var(--bg-input);
+  }
+  .custom-row .txt{font-size:13.5px; min-width:0;}
+  .custom-row .txt .ar{font-family:var(--mono); font-size:11px; margin-right:8px;}
+  .custom-row .q{color:var(--text-muted);}
+  .empty-note{color:var(--text-dim); font-size:13.5px; font-family:var(--mono); padding:6px 0;}
+
+  .radio-pick{display:flex; align-items:center; gap:8px;}
+  .radio-pick input{accent-color:var(--violet);}
+
+  footer.note{
+    text-align:center; color:var(--text-dim); font-family:var(--mono);
+    font-size:12px; margin-top:30px;
+  }
+
+  @media (max-width:560px){
+    .hero h1{font-size:24px;}
+    .q-gutter{display:none;}
+    .score-num{font-size:44px;}
+    .tab{padding:12px 11px; font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="announce-toast" id="announce-toast">El cuestionario está por iniciar...</div>
+
+<div class="editor-bar">
+  <div class="editor-bar-inner">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="tab active">cuestionario_dev_web.js</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ================= HOME ================= -->
+  <section id="view-home">
+    <div class="hero">
+      <p class="eyebrow">desarrollo_web · banco_de_preguntas</p>
+      <h1>Cuestionario de desarrollo web</h1>
+      <p>Pon a prueba conceptos básicos de HTML, CSS, JavaScript y la web en general. Elige las áreas, cuántas preguntas quieres responder y empieza. También puedes ampliar el banco con tus propias preguntas.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="num" id="stat-total">0</div><div class="label">preguntas en el banco</div></div>
+      <div class="stat"><div class="num" id="stat-areas">0</div><div class="label">áreas disponibles</div></div>
+      <div class="stat"><div class="num" id="stat-custom">0</div><div class="label">preguntas agregadas por ti</div></div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Áreas a incluir</p>
+      <div class="area-grid" id="area-grid"></div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Configuración del cuestionario</p>
+      <div class="row">
+        <div class="field">
+          <label for="count-select">Número de preguntas</label>
+          <select id="count-select"></select>
+        </div>
+        <div class="field">
+          <label for="order-select">Orden</label>
+          <select id="order-select">
+            <option value="random">Aleatorio</option>
+            <option value="fixed">Original</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="time-select">Tiempo por pregunta</label>
+          <select id="time-select">
+            <option value="0">Sin límite</option>
+            <option value="15">15 segundos</option>
+            <option value="30" selected>30 segundos</option>
+            <option value="45">45 segundos</option>
+            <option value="60">60 segundos</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-start">▶ Comenzar cuestionario</button>
+        <button class="btn btn-ghost" id="btn-goto-manage">+ Agregar pregunta</button>
+      </div>
+      <p class="hint" id="start-hint"></p>
+      <p class="hint">⛶ El cuestionario se abre en pantalla completa. Si sales de pantalla completa o cambias de aplicación/pestaña, se finalizará automáticamente.</p>
+    </div>
+  </section>
+
+  <!-- ================= REGISTRO ================= -->
+  <section id="view-register" class="hidden">
+    <div class="hero">
+      <p class="eyebrow">paso previo · identificación</p>
+      <h1>Registro del participante</h1>
+      <p>Antes de comenzar, confirma tus datos. Esta información ayuda a identificar quién presentó el cuestionario.</p>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Tus datos</p>
+
+      <div class="row">
+        <div class="field">
+          <label for="reg-name">Nombre completo</label>
+          <input type="text" id="reg-name" placeholder="Ej. Juan Pérez Gómez" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="reg-doc">Documento de identidad</label>
+          <input type="text" id="reg-doc" placeholder="Ej. 1234567890" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="reg-email">Correo institucional</label>
+        <input type="email" id="reg-email" placeholder="nombre@institucion.edu.co" autocomplete="email">
+      </div>
+
+      <div class="field">
+        <label>Foto</label>
+        <div class="photo-upload">
+          <div class="photo-preview-wrap">
+            <span class="photo-placeholder" id="reg-photo-placeholder">🧑</span>
+            <img id="reg-photo-preview" class="hidden" alt="Foto del participante">
+          </div>
+          <div class="photo-upload-actions">
+            <input type="file" id="reg-photo-input" accept="image/*" capture="user">
+            <p class="hint">Puedes tomar una foto con la cámara o subir una imagen.</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="field-error" id="reg-error"></p>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-reg-continue">Continuar ▶</button>
+        <button class="btn btn-ghost" id="btn-reg-back">← Volver</button>
+      </div>
+    </div>
+  </section>
+
+  <!--quiz o prueba-->
+  <section id="view-quiz" class="hidden">
+    <div class="quiz-top">
+      <div class="progress-label" id="quiz-progress-label">Pregunta 1/10</div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="quiz-timer hidden" id="quiz-timer">⏱ 30s</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-gutter" id="q-gutter">01</div>
+      <div class="q-body">
+        <div class="q-meta">
+          <span class="area-tag" id="q-area-tag">HTML</span>
+          <span class="weight-tag" id="q-weight-tag">vale 1.00%</span>
+        </div>
+        <p class="q-text" id="q-text">Pregunta...</p>
+        <div class="options" id="q-options"></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="btn-prev">← Anterior</button>
+      <span class="hint" id="answered-hint"></span>
+      <button class="btn btn-primary" id="btn-next">Siguiente →</button>
+    </div>
+    <div class="dotnav" id="dotnav"></div>
+  </section>
+
+  <!-- ================= RESULTS ================= -->
+  <section id="view-results" class="hidden">
+    <div class="panel participant-card" id="participant-card">
+      <div class="photo-preview-wrap">
+        <span class="photo-placeholder" id="res-photo-placeholder">🧑</span>
+        <img id="res-photo" class="hidden" alt="Foto del participante">
+      </div>
+      <div>
+        <div class="p-name" id="res-name">—</div>
+        <div class="p-meta" id="res-email">—</div>
+        <div class="p-meta" id="res-doc">—</div>
+      </div>
+    </div>
+    <div class="panel fraud-notice hidden" id="fraud-notice">
+      ⚠ El cuestionario se finalizó automáticamente porque saliste de pantalla completa o cambiaste de aplicación/pestaña.
+    </div>
+    <div class="panel score-block">
+      <div class="score-num" id="score-num" style="color:var(--violet);">0%</div>
+      <div class="score-sub">nota final del cuestionario</div>
+      <div class="test-line">
+        <span class="pass" id="res-pass">✓ 0 correctas</span>
+        &nbsp;&nbsp;
+        <span class="fail" id="res-fail">✗ 0 incorrectas</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Resultado por área</p>
+      <div id="area-bars"></div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Revisión de respuestas</p>
+      <div class="btn-row" style="margin-bottom:14px;">
+        <button class="btn btn-ghost btn-sm" id="btn-filter-all">Mostrar todas</button>
+        <button class="btn btn-ghost btn-sm" id="btn-filter-wrong">Solo errores</button>
+      </div>
+      <div id="review-list"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-retry">↻ Hacer otro cuestionario</button>
+    </div>
+  </section>
+
+  <!-- ================= MANAGE / ADD ================= -->
+  <section id="view-manage" class="hidden">
+    <div class="hero" style="padding-bottom:16px;">
+      <p class="eyebrow">banco_de_preguntas · administrar</p>
+      <h1 style="font-size:24px;">Agregar pregunta</h1>
+      <p>Crea preguntas nuevas para cualquier área. Si el área no existe todavía, puedes escribir una nueva. El peso indica cuánto vale la pregunta frente a las demás dentro de un mismo cuestionario.</p>
+    </div>
+
+    <div class="panel">
+      <div class="field">
+        <label for="f-area">Área</label>
+        <select id="f-area"></select>
+      </div>
+      <div class="field" id="f-newarea-wrap" style="display:none;">
+        <label for="f-newarea">Nombre de la nueva área</label>
+        <input type="text" id="f-newarea" placeholder="Ej: Bases de datos">
+      </div>
+
+      <div class="field">
+        <label for="f-question">Pregunta</label>
+        <textarea id="f-question" placeholder="Escribe el enunciado de la pregunta"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Opciones de respuesta (marca la correcta)</label>
+        <div id="f-options"></div>
+      </div>
+
+      <div class="row">
+        <div class="field" style="max-width:160px;">
+          <label for="f-weight">Peso relativo</label>
+          <input type="number" id="f-weight" min="0.1" step="0.1" value="1">
+        </div>
+      </div>
+      <p class="hint">Por defecto vale 1, igual que las demás preguntas. Pon un número mayor si esta pregunta debe pesar más en la nota final dentro del mismo cuestionario.</p>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-save-question">Guardar pregunta</button>
+        <button class="btn btn-ghost" id="btn-back-home">← Volver al inicio</button>
+      </div>
+      <p class="hint" id="manage-feedback"></p>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Resumen del banco por área</p>
+      <div id="manage-area-summary" class="area-grid"></div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Preguntas que has agregado tú</p>
+      <div class="custom-list" id="custom-list"></div>
+    </div>
+  </section>
+
+  <footer class="note">los datos agregados se guardan automáticamente</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ======================================================
+     1. Preguntas(100 preguntas, 4 áreas)                                                            uso de claude y gemini para preguntas y mejor orden
+     ====================================================== */
+  const BASE_QUESTIONS = [
+    // ---------- HTML (25) ----------
+    {id:"h1",area:"HTML",q:"¿Qué significa la sigla HTML?",options:["HighText Machine Language","Hyper Transfer Markup Language","HyperText Markup Language","Home Tool Markup Language"],correct:2},
+    {id:"h2",area:"HTML",q:"¿Qué etiqueta se usa para el encabezado más importante de una página?",options:["<h6>","<head>","<title>","<h1>"],correct:3},
+    {id:"h3",area:"HTML",q:"¿Qué etiqueta define un párrafo de texto?",options:["<p>","<par>","<text>","<span>"],correct:0},
+    {id:"h4",area:"HTML",q:"¿Qué etiqueta se usa para insertar una imagen?",options:["<picture>","<image>","<img>","<src>"],correct:2},
+    {id:"h5",area:"HTML",q:"¿Qué atributo de <img> describe el contenido de la imagen como texto alternativo?",options:["title","alt","desc","caption"],correct:1},
+    {id:"h6",area:"HTML",q:"¿Qué etiqueta crea un hipervínculo?",options:["<link>","<a>","<href>","<nav>"],correct:1},
+    {id:"h7",area:"HTML",q:"En la etiqueta <a>, ¿qué atributo indica a dónde apunta el enlace?",options:["href","src","target","to"],correct:0},
+    {id:"h8",area:"HTML",q:"¿Qué etiqueta envuelve todo el contenido de un documento HTML?",options:["<body>","<doc>","<html>","<page>"],correct:2},
+    {id:"h9",area:"HTML",q:"¿Qué etiqueta contiene los metadatos del documento (como el título o el charset)?",options:["<meta>","<head>","<info>","<header>"],correct:1},
+    {id:"h10",area:"HTML",q:"¿Qué etiqueta contiene el contenido visible de la página?",options:["<main>","<body>","<content>","<view>"],correct:1},
+    {id:"h11",area:"HTML",q:"¿Qué etiqueta crea una lista no ordenada (con viñetas)?",options:["<ol>","<list>","<ul>","<li>"],correct:2},
+    {id:"h12",area:"HTML",q:"¿Qué etiqueta crea una lista numerada?",options:["<ul>","<ol>","<num>","<li>"],correct:1},
+    {id:"h13",area:"HTML",q:"¿Qué etiqueta representa un elemento dentro de una lista?",options:["<item>","<li>","<el>","<row>"],correct:1},
+    {id:"h14",area:"HTML",q:"¿Qué etiqueta semántica se usa para el encabezado de una página o sección?",options:["<head>","<top>","<header>","<title>"],correct:2},
+    {id:"h15",area:"HTML",q:"¿Qué etiqueta semántica se usa para el pie de página?",options:["<bottom>","<end>","<foot>","<footer>"],correct:3},
+    {id:"h16",area:"HTML",q:"¿Qué etiqueta semántica agrupa los enlaces de navegación de un sitio?",options:["<nav>","<menu>","<links>","<navbar>"],correct:0},
+    {id:"h17",area:"HTML",q:"¿Qué etiqueta se usa para crear una tabla?",options:["<grid>","<table>","<tbl>","<rows>"],correct:1},
+    {id:"h18",area:"HTML",q:"¿Qué etiqueta representa una fila dentro de una tabla?",options:["<td>","<row>","<tr>","<th>"],correct:2},
+    {id:"h19",area:"HTML",q:"¿Qué etiqueta representa una celda de datos dentro de una fila de tabla?",options:["<cell>","<td>","<th>","<col>"],correct:1},
+    {id:"h20",area:"HTML",q:"¿Qué etiqueta define un formulario para recolectar datos del usuario?",options:["<form>","<input>","<field>","<data>"],correct:0},
+    {id:"h21",area:"HTML",q:"¿Qué etiqueta crea un campo de entrada de texto en un formulario?",options:["<field>","<textbox>","<input>","<text>"],correct:2},
+    {id:"h22",area:"HTML",q:"En <input>, ¿qué atributo indica el tipo de dato que se va a capturar (texto, correo, número, etc.)?",options:["kind","type","format","data"],correct:1},
+    {id:"h23",area:"HTML",q:"¿Qué etiqueta crea un botón pulsable?",options:["<btn>","<click>","<button>","<submit>"],correct:2},
+    {id:"h24",area:"HTML",q:"¿Qué etiqueta inserta un salto de línea dentro de un bloque de texto?",options:["<break>","<br>","<newline>","<ln>"],correct:1},
+    {id:"h25",area:"HTML",q:"¿Cuál es la declaración correcta de tipo de documento para HTML5?",options:["<!DOCTYPE html5>","<!DOCTYPE HTML PUBLIC>","<!DOCTYPE html>","<html5>"],correct:2},
+
+    // ---------- CSS (25) ----------
+    {id:"c1",area:"CSS",q:"¿Qué significa la sigla CSS?",options:["Computer Style Sheets","Cascading Style Sheets","Creative Style System","Colorful Style Sheets"],correct:1},
+    {id:"c2",area:"CSS",q:"¿Qué propiedad CSS cambia el color del texto?",options:["text-color","font-color","color","foreground"],correct:2},
+    {id:"c3",area:"CSS",q:"¿Qué propiedad CSS cambia el color de fondo de un elemento?",options:["background-color","bg-color","fill","color-bg"],correct:0},
+    {id:"c4",area:"CSS",q:"¿Qué símbolo se usa para seleccionar elementos por su clase?",options:["#","*",".","&"],correct:2},
+    {id:"c5",area:"CSS",q:"¿Qué símbolo se usa para seleccionar un elemento por su id?",options:[".","#","%","@"],correct:1},
+    {id:"c6",area:"CSS",q:"¿Qué propiedad controla el tamaño de la fuente?",options:["font-size","text-size","size","font-weight"],correct:0},
+    {id:"c7",area:"CSS",q:"¿Qué propiedad agrega espacio interno entre el borde de un elemento y su contenido?",options:["margin","spacing","padding","gap"],correct:2},
+    {id:"c8",area:"CSS",q:"¿Qué propiedad agrega espacio externo alrededor de un elemento?",options:["padding","margin","border","outline"],correct:1},
+    {id:"c9",area:"CSS",q:"¿Qué propiedad define el ancho de un elemento?",options:["width","size-w","horizontal","w"],correct:0},
+    {id:"c10",area:"CSS",q:"¿Qué propiedad define el alto de un elemento?",options:["height","h","size-h","vertical"],correct:0},
+    {id:"c11",area:"CSS",q:"¿Qué valor de la propiedad display oculta un elemento sin dejar espacio en el flujo del documento?",options:["hidden","invisible","none","collapse"],correct:2},
+    {id:"c12",area:"CSS",q:"¿Qué propiedad alinea el texto horizontalmente dentro de su contenedor?",options:["align-text","text-align","justify","text-position"],correct:1},
+    {id:"c13",area:"CSS",q:"El margin, el border, el padding y el contenido forman parte de ¿qué concepto fundamental de CSS?",options:["el modelo de caja (box model)","el flujo normal","el grid system","la cascada"],correct:0},
+    {id:"c14",area:"CSS",q:"¿Qué propiedad define la tipografía (familia de fuente) de un texto?",options:["font-family","typeface","font-type","text-font"],correct:0},
+    {id:"c15",area:"CSS",q:"¿Qué selector aplica un estilo a todos los elementos de la página?",options:["all","#all","*",".all"],correct:2},
+    {id:"c16",area:"CSS",q:"¿Qué valor de display convierte un contenedor en un layout flexible (Flexbox)?",options:["flexible","flex","box","inline-flex-grid"],correct:1},
+    {id:"c17",area:"CSS",q:"En Flexbox o Grid, ¿qué propiedad define el espacio entre los elementos hijos?",options:["space","gap","gutter","separation"],correct:1},
+    {id:"c18",area:"CSS",q:"¿Qué unidad de medida es relativa al tamaño de fuente del elemento raíz (html)?",options:["em","rem","vh","%"],correct:1},
+    {id:"c19",area:"CSS",q:"¿Qué unidad de medida es relativa al tamaño de fuente del elemento padre?",options:["rem","px","em","pt"],correct:2},
+    {id:"c20",area:"CSS",q:"¿Qué propiedad permite redondear las esquinas de un elemento?",options:["corner-radius","border-radius","round","edge-radius"],correct:1},
+    {id:"c21",area:"CSS",q:"¿Qué valor de position hace que un elemento quede fijo respecto a la ventana del navegador al hacer scroll?",options:["absolute","relative","fixed","sticky"],correct:2},
+    {id:"c22",area:"CSS",q:"¿Qué pseudo-clase aplica un estilo cuando el cursor pasa sobre un elemento?",options:[":hover",":active",":focus",":over"],correct:0},
+    {id:"c23",area:"CSS",q:"¿Qué propiedad define el grosor del borde de un elemento?",options:["edge-width","border-width","outline-width","stroke-width"],correct:1},
+    {id:"c24",area:"CSS",q:"¿Qué combinador CSS selecciona únicamente a los hijos directos de un elemento?",options:["espacio ( )","más (+)","mayor que (>)","virgulilla (~)"],correct:2},
+    {id:"c25",area:"CSS",q:"¿Qué regla CSS permite aplicar estilos distintos según el tamaño de la pantalla?",options:["@font-face","@import","@media","@supports"],correct:2},
+
+    // ---------- JavaScript (25) ----------
+    {id:"j1",area:"JavaScript",q:"¿Qué palabra clave declara una variable cuyo valor no se puede reasignar?",options:["var","let","const","static"],correct:2},
+    {id:"j2",area:"JavaScript",q:"¿Qué palabra clave declara una variable con alcance de bloque que sí puede reasignarse?",options:["let","const","def","val"],correct:0},
+    {id:"j3",area:"JavaScript",q:"¿Qué método se usa para mostrar un mensaje en la consola del navegador?",options:["print()","console.log()","log.console()","display()"],correct:1},
+    {id:"j4",area:"JavaScript",q:"¿Qué método del DOM selecciona un elemento a partir de su id?",options:["document.querySelector()","document.getElementById()","document.getElement()","document.findById()"],correct:1},
+    {id:"j5",area:"JavaScript",q:"¿Qué operador compara igualdad estricta (mismo valor y mismo tipo)?",options:["==","=","===","!="],correct:2},
+    {id:"j6",area:"JavaScript",q:"¿Qué estructura repite un bloque de código mientras una condición sea verdadera?",options:["if","while","switch","for...in"],correct:1},
+    {id:"j7",area:"JavaScript",q:"¿Qué estructura es la más usada para iterar un número definido de veces?",options:["for","while","do","loop"],correct:0},
+    {id:"j8",area:"JavaScript",q:"¿Qué tipo de dato representa verdadero o falso?",options:["string","number","boolean","null"],correct:2},
+    {id:"j9",area:"JavaScript",q:"¿Qué método de array agrega un elemento al final del arreglo?",options:["push()","pop()","shift()","add()"],correct:0},
+    {id:"j10",area:"JavaScript",q:"¿Qué método de array transforma cada elemento y devuelve un nuevo arreglo con los resultados?",options:["forEach()","filter()","map()","reduce()"],correct:2},
+    {id:"j11",area:"JavaScript",q:"¿Qué método de array devuelve un nuevo arreglo solo con los elementos que cumplen una condición?",options:["map()","filter()","find()","some()"],correct:1},
+    {id:"j12",area:"JavaScript",q:"¿Cómo se llama una función definida con la sintaxis (parámetros) => { ... }?",options:["función nombrada","función arrow (flecha)","función generadora","método estático"],correct:1},
+    {id:"j13",area:"JavaScript",q:"Antes de los template literals, ¿qué operador se usaba para unir cadenas de texto?",options:["&","+","%","."],correct:1},
+    {id:"j14",area:"JavaScript",q:"¿Qué sintaxis moderna permite insertar variables dentro de un texto usando ${ }?",options:["string interpolation clásica","template literals (comillas invertidas)","comillas dobles","concat()"],correct:1},
+    {id:"j15",area:"JavaScript",q:"¿Qué palabra clave se usa para declarar una función tradicional?",options:["func","def","function","method"],correct:2},
+    {id:"j16",area:"JavaScript",q:"¿Qué evento se dispara cuando el usuario hace clic sobre un elemento?",options:["change","click","load","submit"],correct:1},
+    {id:"j17",area:"JavaScript",q:"¿Qué método agrega un detector de eventos a un elemento del DOM?",options:["onEvent()","addEventListener()","bindEvent()","listen()"],correct:1},
+    {id:"j18",area:"JavaScript",q:"¿Qué estructura permite ejecutar código solo si una condición es verdadera?",options:["if","for","while","switch"],correct:0},
+    {id:"j19",area:"JavaScript",q:"¿Qué valor representa la ausencia intencional de un objeto?",options:["undefined","NaN","null","void"],correct:2},
+    {id:"j20",area:"JavaScript",q:"¿Qué valor indica que una variable fue declarada pero todavía no tiene un valor asignado?",options:["null","undefined","NaN","empty"],correct:1},
+    {id:"j21",area:"JavaScript",q:"¿Qué función convierte un texto en un número entero?",options:["Number.toInt()","parseInt()","toInteger()","Int(string)"],correct:1},
+    {id:"j22",area:"JavaScript",q:"¿Qué objeto global representa la página web cargada en el navegador y permite manipularla?",options:["window","document","page","browser"],correct:1},
+    {id:"j23",area:"JavaScript",q:"¿Cómo se escribe un comentario de una sola línea en JavaScript?",options:["# comentario","// comentario","<!-- comentario -->","' comentario"],correct:1},
+    {id:"j24",area:"JavaScript",q:"¿Qué método recorre cada elemento de un arreglo ejecutando una función, sin devolver un nuevo arreglo?",options:["map()","forEach()","filter()","reduce()"],correct:1},
+    {id:"j25",area:"JavaScript",q:"¿Qué tipo de dato representa una cadena de texto?",options:["string","char","text","str"],correct:0},
+
+    // ---------- Conceptos Web (25) ----------
+    {id:"w1",area:"Conceptos Web",q:"¿Qué significa la sigla HTTP?",options:["HyperText Transfer Protocol","HighText Transmission Process","Home Tool Transfer Protocol","HyperText Tool Process"],correct:0},
+    {id:"w2",area:"Conceptos Web",q:"¿Qué significa la sigla URL?",options:["Universal Read Link","Uniform Resource Locator","User Resource Link","Unified Resource Location"],correct:1},
+    {id:"w3",area:"Conceptos Web",q:"¿Qué protocolo transfiere datos de forma cifrada y segura en la web?",options:["FTP","HTTP","HTTPS","SSH"],correct:2},
+    {id:"w4",area:"Conceptos Web",q:"¿Qué sistema traduce nombres de dominio (como ejemplo.com) a direcciones IP?",options:["DNS","HTTP","FTP","TCP"],correct:0},
+    {id:"w5",area:"Conceptos Web",q:"¿Qué código de estado HTTP indica que un recurso no fue encontrado?",options:["200","301","404","500"],correct:2},
+    {id:"w6",area:"Conceptos Web",q:"¿Qué código de estado HTTP indica que la petición fue exitosa?",options:["100","200","400","404"],correct:1},
+    {id:"w7",area:"Conceptos Web",q:"¿Qué código de estado HTTP indica un error interno del servidor?",options:["200","403","404","500"],correct:3},
+    {id:"w8",area:"Conceptos Web",q:"¿Qué método HTTP se usa típicamente para obtener (leer) datos de un servidor?",options:["GET","POST","PUT","DELETE"],correct:0},
+    {id:"w9",area:"Conceptos Web",q:"¿Qué método HTTP se usa típicamente para enviar datos y crear un nuevo recurso?",options:["GET","POST","HEAD","OPTIONS"],correct:1},
+    {id:"w10",area:"Conceptos Web",q:"¿Qué formato ligero de texto se usa con frecuencia para el intercambio de datos en APIs?",options:["XML","CSV","JSON","YAML"],correct:2},
+    {id:"w11",area:"Conceptos Web",q:"¿Qué lenguaje se usa para dar la estructura básica a una página web?",options:["CSS","HTML","JavaScript","SQL"],correct:1},
+    {id:"w12",area:"Conceptos Web",q:"¿Qué lenguaje se usa para dar estilo y presentación visual a una página web?",options:["HTML","CSS","JavaScript","PHP"],correct:1},
+    {id:"w13",area:"Conceptos Web",q:"¿Qué lenguaje se usa principalmente para dar interactividad y comportamiento dinámico a una página?",options:["HTML","CSS","JavaScript","JSON"],correct:2},
+    {id:"w14",area:"Conceptos Web",q:"¿Qué nombre recibe el software que usamos para visualizar páginas web (Chrome, Firefox, etc.)?",options:["servidor","navegador","cliente FTP","intérprete"],correct:1},
+    {id:"w15",area:"Conceptos Web",q:"¿Cómo se llama el diseño que adapta una página a distintos tamaños de pantalla?",options:["diseño fijo","diseño responsivo","diseño tabular","diseño estático"],correct:1},
+    {id:"w16",area:"Conceptos Web",q:"¿Qué sigla agrupa las prácticas para mejorar la posición de un sitio en los buscadores?",options:["SEO","SEM","API","CDN"],correct:0},
+    {id:"w17",area:"Conceptos Web",q:"¿Cómo se llama el conjunto de prácticas que hace que un sitio sea usable por personas con discapacidad?",options:["usabilidad","accesibilidad","portabilidad","escalabilidad"],correct:1},
+    {id:"w18",area:"Conceptos Web",q:"¿Cuál es la herramienta de control de versiones más usada en el desarrollo de software?",options:["Git","SVN","Docker","npm"],correct:0},
+    {id:"w19",area:"Conceptos Web",q:"¿Qué plataforma en la nube se usa comúnmente para alojar repositorios Git?",options:["GitHub","Figma","Trello","Slack"],correct:0},
+    {id:"w20",area:"Conceptos Web",q:"¿Cómo se llama el conjunto de herramientas del navegador para inspeccionar y depurar una página?",options:["panel de control","DevTools","consola SQL","gestor de tareas"],correct:1},
+    {id:"w21",area:"Conceptos Web",q:"¿Cómo se llama el conjunto de reglas que define cómo se comunican un cliente y un servidor?",options:["framework","protocolo","compilador","middleware"],correct:1},
+    {id:"w22",area:"Conceptos Web",q:"¿Qué tipo de API sigue los principios de recursos identificados por URL y métodos HTTP?",options:["SOAP","REST","GraphQL","RPC"],correct:1},
+    {id:"w23",area:"Conceptos Web",q:"¿Qué componente del navegador interpreta y muestra el HTML y el CSS en pantalla?",options:["motor de renderizado","compilador JIT","servidor proxy","gestor de paquetes"],correct:0},
+    {id:"w24",area:"Conceptos Web",q:"¿Qué almacenamiento del navegador guarda datos de forma persistente sin fecha de expiración?",options:["sessionStorage","cookies de sesión","localStorage","caché de imágenes"],correct:2},
+    {id:"w25",area:"Conceptos Web",q:"¿Cómo se llama la práctica de diseñar primero pensando en móviles y luego adaptar a pantallas grandes?",options:["desktop first","mobile first","print first","grid first"],correct:1}
+  ].map(q => Object.assign({weight:1, builtin:true}, q));
+
+  const AREA_COLORS = {
+    "HTML":"#fb923c",
+    "CSS":"#60a5fa",
+    "JavaScript":"#facc15",
+    "Conceptos Web":"#b794f6"
+  };
+  const FALLBACK_PALETTE = ["#2dd4bf","#f472b6","#a3e635","#fca5a5","#93c5fd","#fda4af","#5eead4"];
+  function colorForArea(area){
+    if(AREA_COLORS[area]) return AREA_COLORS[area];
+    let h = 0;
+    for(let i=0;i<area.length;i++) h = (h*31 + area.charCodeAt(i)) >>> 0;
+    return FALLBACK_PALETTE[h % FALLBACK_PALETTE.length];
+  }
+
+  /* ======================================================
+     2. datos guradados (persistente si hay window.storage,
+        si no, se mantiene en memoria durante la sesión)
+     ====================================================== */
+  const STORAGE_KEY = "custom-questions";
+  const hasStorage = typeof window !== "undefined" && window.storage && typeof window.storage.get === "function";
+
+  async function loadCustomQuestions(){
+    if(!hasStorage) return [];
+    try{
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value) return JSON.parse(res.value);
+      return [];
+    }catch(e){
+      return [];
+    }
+  }
+  async function saveCustomQuestions(list){
+    if(!hasStorage) return;
+    try{
+      await window.storage.set(STORAGE_KEY, JSON.stringify(list), false);
+    }catch(e){ /* silencioso: seguimos funcionando en memoria */ }
+  }
+
+  /* ======================================================
+     3. ESTADO DE LA APLICACIÓN                                                            Lectura e investigacion de lo usado
+     ====================================================== */
+  const state = {
+    custom: [],
+    all: [],                 // base + custom
+    selectedAreas: new Set(),
+    session: [],              // preguntas elegidas para el cuestionario actual
+    sessionWeightTotal: 0,
+    current: 0,
+    answers: {},               // id -> índice elegido
+    reviewFilter: "all",
+    timePerQuestion: 30,       // segundos por pregunta, 0 = sin límite
+    timeLeft: 0,
+    timerId: null,
+    quizActive: false,         // true mientras el cuestionario está en curso (para vigilar fraude)
+    participant: { name:"", email:"", doc:"", photo:null }
+  };
+
+  function rebuildAll(){
+    state.all = BASE_QUESTIONS.concat(state.custom);
+  }
+
+  function areasList(){
+    const set = new Set();
+    state.all.forEach(q => set.add(q.area));
+    return Array.from(set);
+  }
+
+  function questionsByArea(area){
+    return state.all.filter(q => q.area === area);
+  }
+
+  /* ======================================================
+     4. UTILIDADES
+     ====================================================== */
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+  function pad2(n){ return n < 10 ? "0"+n : ""+n; }
+  function el(tag, cls, html){
+    const e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  }
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  /* ======================================================
+     5. VISTAS
+     ====================================================== */
+  const views = ["home","register","quiz","results","manage"];
+  function showView(name){
+    views.forEach(v => {
+      document.getElementById("view-"+v).classList.toggle("hidden", v !== name);
+    });
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  /* ---------- HOME ---------- */
+  function renderHome(){
+    document.getElementById("stat-total").textContent = state.all.length;
+    document.getElementById("stat-areas").textContent = areasList().length;
+    document.getElementById("stat-custom").textContent = state.custom.length;
+
+    const grid = document.getElementById("area-grid");
+    grid.innerHTML = "";
+    areasList().forEach(area => {
+      const count = questionsByArea(area).length;
+      const active = state.selectedAreas.has(area);
+      const chip = el("label", "area-chip" + (active ? " active" : ""));
+      chip.innerHTML =
+        '<input type="checkbox" '+(active?"checked":"")+'>' +
+        '<span class="swatch" style="background:'+colorForArea(area)+'"></span>' +
+        '<span class="name">'+escapeHtml(area)+'</span>' +
+        '<span class="count">'+count+'</span>';
+      chip.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        if(state.selectedAreas.has(area)){
+          if(state.selectedAreas.size > 1) state.selectedAreas.delete(area);
+        }else{
+          state.selectedAreas.add(area);
+        }
+        renderHome();
+      });
+      grid.appendChild(chip);
+    });
+
+    updateCountOptions();
+  }
+
+  function selectedAvailableCount(){
+    return state.all.filter(q => state.selectedAreas.has(q.area)).length;
+  }
+
+  // preguntar acerca de base de datos y mejoras de codigo  19/06/26
+  function updateCountOptions(){
+    const sel = document.getElementById("count-select");
+    const avail = selectedAvailableCount();
+    const base = [10,20,30,50,100].filter(n => n < avail);
+    sel.innerHTML = "";
+    base.forEach(n => sel.appendChild(new Option(n+" preguntas", n)));
+    sel.appendChild(new Option("Todas ("+avail+")", "all"));
+    sel.value = "all";
+    document.getElementById("start-hint").textContent =
+      "Hay " + avail + " preguntas disponibles con las áreas seleccionadas.";
+    document.getElementById("btn-start").disabled = avail === 0;
+  }
+
+  /* ---------- INICIAR CUESTIONARIO ---------- */
+  function startQuiz(){
+    const pool = state.all.filter(q => state.selectedAreas.has(q.area));
+    const countVal = document.getElementById("count-select").value;
+    const order = document.getElementById("order-select").value;
+
+    let chosen = order === "random" ? shuffle(pool) : pool.slice();
+    if(countVal !== "all"){
+      chosen = chosen.slice(0, parseInt(countVal,10));
+    }
+    if(order === "fixed"){
+      // mantener orden original del banco
+      chosen = pool.filter(q => chosen.includes(q));
+    }
+
+    state.session = chosen;
+    state.sessionWeightTotal = chosen.reduce((s,q) => s + q.weight, 0);
+    state.current = 0;
+    state.answers = {};
+    state.timePerQuestion = parseInt(document.getElementById("time-select").value, 10) || 0;
+    state.quizActive = true;
+    document.getElementById("fraud-notice").classList.add("hidden");
+
+    showView("quiz");
+    renderQuestion();
+  }
+
+  /* ---------- ANUNCIO DE INICIO ---------- */
+  function announceAndStart(){
+    requestFullscreenSafe();
+    const toast = document.getElementById("announce-toast");
+    toast.classList.add("show");
+    setTimeout(() => {
+      toast.classList.remove("show");
+      startQuiz();
+    }, 1300);
+  }
+
+  /* ---------- PANTALLA COMPLETA / ANTI-FRAUDE ---------- */
+  function requestFullscreenSafe(){
+    const elDoc = document.documentElement;
+    const req = elDoc.requestFullscreen || elDoc.webkitRequestFullscreen ||
+                elDoc.mozRequestFullScreen || elDoc.msRequestFullscreen;
+    if(req){
+      req.call(elDoc).catch(() => {});
+    }
+  }
+
+  function exitFullscreenSafe(){
+    if(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement){
+      const exit = document.exitFullscreen || document.webkitExitFullscreen ||
+                   document.mozCancelFullScreen || document.msExitFullscreen;
+      if(exit) exit.call(document).catch(() => {});
+    }
+  }
+
+  function isFullscreenActive(){
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+  }
+
+  function terminateQuizForFraud(){
+    if(!state.quizActive) return;
+    state.quizActive = false;
+    clearInterval(state.timerId);
+    exitFullscreenSafe();
+    const results = computeResults();
+    showView("results");
+    renderResults(results);
+    document.getElementById("fraud-notice").classList.remove("hidden");
+  }
+
+  document.addEventListener("fullscreenchange", () => {
+    if(state.quizActive && !isFullscreenActive()) terminateQuizForFraud();
+  });
+  document.addEventListener("webkitfullscreenchange", () => {
+    if(state.quizActive && !isFullscreenActive()) terminateQuizForFraud();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if(state.quizActive && document.hidden) terminateQuizForFraud();
+  });
+
+  /* ---------- QUIZ ---------- */
+  function renderQuestion(){
+    const total = state.session.length;
+    const idx = state.current;
+    const q = state.session[idx];
+
+    document.getElementById("quiz-progress-label").textContent =
+      "Pregunta " + (idx+1) + "/" + total;
+    document.getElementById("progress-fill").style.width =
+      (((idx) / total) * 100) + "%";
+
+    document.getElementById("q-gutter").textContent = pad2(idx+1);
+
+    const tag = document.getElementById("q-area-tag");
+    tag.textContent = q.area;
+    const c = colorForArea(q.area);
+    tag.style.color = c;
+    tag.style.borderColor = c;
+
+    const pct = (q.weight / state.sessionWeightTotal) * 100;
+    document.getElementById("q-weight-tag").textContent = "vale " + pct.toFixed(2) + "% de tu nota";
+
+    document.getElementById("q-text").textContent = q.q;
+
+    const optionsWrap = document.getElementById("q-options");
+    optionsWrap.innerHTML = "";
+    q.options.forEach((opt, i) => {
+      const chosen = state.answers[q.id];
+      const btn = el("div", "option" + (chosen === i ? " selected" : ""));
+      btn.setAttribute("role","radio");
+      btn.setAttribute("aria-checked", chosen === i ? "true" : "false");
+      btn.tabIndex = 0;
+      btn.innerHTML = '<span class="bracket">['+(chosen===i?"x":" ")+']</span><span>'+escapeHtml(opt)+'</span>';
+      btn.addEventListener("click", () => selectOption(q.id, i));
+      btn.addEventListener("keydown", (ev) => {
+        if(ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); selectOption(q.id, i); }
+      });
+      optionsWrap.appendChild(btn);
+    });
+
+    document.getElementById("btn-prev").disabled = idx === 0;
+    document.getElementById("btn-prev").style.visibility = idx === 0 ? "hidden" : "visible";
+    document.getElementById("btn-next").textContent = idx === total-1 ? "Finalizar ✓" : "Siguiente →";
+
+    document.getElementById("answered-hint").textContent =
+      Object.keys(state.answers).length + " de " + total + " respondidas";
+
+    renderDotnav();
+    startQuestionTimer();
+  }
+
+  /* ---------- TIMER POR PREGUNTA ---------- */
+  function startQuestionTimer(){
+    clearInterval(state.timerId);
+    const timerEl = document.getElementById("quiz-timer");
+
+    if(!state.timePerQuestion){
+      timerEl.classList.add("hidden");
+      return;
+    }
+
+    timerEl.classList.remove("hidden");
+    state.timeLeft = state.timePerQuestion;
+    updateTimerDisplay();
+
+    state.timerId = setInterval(() => {
+      state.timeLeft--;
+      updateTimerDisplay();
+      if(state.timeLeft <= 0){
+        clearInterval(state.timerId);
+        goNext();
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay(){
+    const timerEl = document.getElementById("quiz-timer");
+    timerEl.textContent = "⏱ " + state.timeLeft + "s";
+    timerEl.classList.toggle("low", state.timeLeft <= 5);
+  }
+
+  function selectOption(qId, idx){
+    state.answers[qId] = idx;
+    renderQuestion();
+  }
+
+  function renderDotnav(){
+    const wrap = document.getElementById("dotnav");
+    wrap.innerHTML = "";
+    state.session.forEach((q, i) => {
+      const b = document.createElement("button");
+      let cls = "";
+      if(i === state.current) cls += " current";
+      if(state.answers[q.id] !== undefined) cls += " answered";
+      b.className = cls.trim();
+      b.title = "Pregunta " + (i+1);
+      b.addEventListener("click", () => { state.current = i; renderQuestion(); });
+      wrap.appendChild(b);
+    });
+  }
+
+  function goNext(){
+    if(state.current < state.session.length - 1){
+      state.current++;
+      renderQuestion();
+    }else{
+      finishQuiz();
+    }
+  }
+  function goPrev(){
+    if(state.current > 0){
+      state.current--;
+      renderQuestion();
+    }
+  }
+
+  /* ---------- RESULTADOS ---------- */
+  function computeResults(){
+    let earned = 0, correctCount = 0;
+    const byArea = {};
+    state.session.forEach(q => {
+      const pct = (q.weight / state.sessionWeightTotal) * 100;
+      const isCorrect = state.answers[q.id] === q.correct;
+      if(!byArea[q.area]) byArea[q.area] = {total:0, correct:0, pctTotal:0, pctEarned:0};
+      byArea[q.area].total++;
+      byArea[q.area].pctTotal += pct;
+      if(isCorrect){
+        earned += pct;
+        correctCount++;
+        byArea[q.area].correct++;
+        byArea[q.area].pctEarned += pct;
+      }
+    });
+    return {score: earned, correctCount, wrongCount: state.session.length - correctCount, byArea};
+  }
+
+  function finishQuiz(){
+    state.quizActive = false;
+    clearInterval(state.timerId);
+    exitFullscreenSafe();
+    document.getElementById("fraud-notice").classList.add("hidden");
+    const results = computeResults();
+    showView("results");
+    renderResults(results);
+  }
+
+  function renderResults(results){
+    renderParticipantCard();
+
+    const scoreEl = document.getElementById("score-num");
+    scoreEl.textContent = results.score.toFixed(1) + "%";
+    scoreEl.style.color = results.score >= 60 ? "var(--green)" : (results.score >= 40 ? "var(--amber)" : "var(--red)");
+
+    document.getElementById("res-pass").textContent = "✓ " + results.correctCount + " correctas";
+    document.getElementById("res-fail").textContent = "✗ " + results.wrongCount + " incorrectas";
+
+    const barsWrap = document.getElementById("area-bars");
+    barsWrap.innerHTML = "";
+    Object.keys(results.byArea).forEach(area => {
+      const d = results.byArea[area];
+      const pct = d.total ? (d.correct / d.total) * 100 : 0;
+      const row = el("div","area-bar-row");
+      row.innerHTML =
+        '<div class="area-bar-head"><span class="nm">'+escapeHtml(area)+'</span><span class="pc">'+d.correct+'/'+d.total+' · '+pct.toFixed(0)+'%</span></div>' +
+        '<div class="area-bar-track"><div class="area-bar-fill" style="width:'+pct+'%;background:'+colorForArea(area)+'"></div></div>';
+      barsWrap.appendChild(row);
+    });
+
+    renderReviewList();
+  }
+
+  function renderParticipantCard(){
+    const p = state.participant;
+    document.getElementById("res-name").textContent = p.name || "—";
+    document.getElementById("res-email").textContent = p.email || "—";
+    document.getElementById("res-doc").textContent = p.doc ? ("Doc: " + p.doc) : "—";
+
+    const img = document.getElementById("res-photo");
+    const placeholder = document.getElementById("res-photo-placeholder");
+    if(p.photo){
+      img.src = p.photo;
+      img.classList.remove("hidden");
+      placeholder.classList.add("hidden");
+    } else {
+      img.classList.add("hidden");
+      placeholder.classList.remove("hidden");
+    }
+  }
+
+  function renderReviewList(){
+    const wrap = document.getElementById("review-list");
+    wrap.innerHTML = "";
+    const items = state.session.filter(q => {
+      if(state.reviewFilter === "wrong") return state.answers[q.id] !== q.correct;
+      return true;
+    });
+    if(items.length === 0){
+      wrap.appendChild(el("p","empty-note","// no hay preguntas que coincidan con el filtro"));
+      return;
+    }
+    items.forEach(q => {
+      const chosenIdx = state.answers[q.id];
+      const isCorrect = chosenIdx === q.correct;
+      const card = el("div","review-item");
+      const chosenTxt = chosenIdx === undefined ? "(sin responder)" : escapeHtml(q.options[chosenIdx]);
+      card.innerHTML =
+        '<div class="review-head"><span class="mark '+(isCorrect?"ok":"no")+'">'+(isCorrect?"✓":"✗")+'</span>' +
+        '<span class="area-tag" style="color:'+colorForArea(q.area)+';border-color:'+colorForArea(q.area)+'">'+escapeHtml(q.area)+'</span></div>' +
+        '<p class="review-q">'+escapeHtml(q.q)+'</p>' +
+        '<p class="review-ans">Tu respuesta: <b>'+chosenTxt+'</b></p>' +
+        (isCorrect ? "" : '<p class="review-ans">Respuesta correcta: <b>'+escapeHtml(q.options[q.correct])+'</b></p>');
+      wrap.appendChild(card);
+    });
+  }
+
+  /* ---------- MANAGE / ADD ---------- */
+  function renderManage(){
+    const areaSel = document.getElementById("f-area");
+    areaSel.innerHTML = "";
+    areasList().forEach(a => areaSel.appendChild(new Option(a, a)));
+    areaSel.appendChild(new Option("+ Nueva área...", "__new__"));
+
+    document.getElementById("f-newarea-wrap").style.display = "none";
+    document.getElementById("f-newarea").value = "";
+
+    const optsWrap = document.getElementById("f-options");
+    optsWrap.innerHTML = "";
+    for(let i=0;i<4;i++){
+      const row = el("div","field");
+      row.style.marginBottom = "8px";
+      row.innerHTML =
+        '<div class="radio-pick">' +
+        '<input type="radio" name="f-correct" value="'+i+'" '+(i===0?"checked":"")+'>' +
+        '<input type="text" class="f-option-text" data-idx="'+i+'" placeholder="Opción '+(i+1)+'" style="flex:1;">' +
+        '</div>';
+      row.querySelector(".radio-pick").style.display = "flex";
+      row.querySelector(".radio-pick").style.gap = "10px";
+      row.querySelector(".radio-pick").style.alignItems = "center";
+      optsWrap.appendChild(row);
+    }
+
+    document.getElementById("f-question").value = "";
+    document.getElementById("f-weight").value = "1";
+    document.getElementById("manage-feedback").textContent = "";
+
+    const summary = document.getElementById("manage-area-summary");
+    summary.innerHTML = "";
+    areasList().forEach(area => {
+      const count = questionsByArea(area).length;
+      const chip = el("div","area-chip disabled");
+      chip.innerHTML =
+        '<span class="swatch" style="background:'+colorForArea(area)+'"></span>' +
+        '<span class="name">'+escapeHtml(area)+'</span><span class="count">'+count+'</span>';
+      summary.appendChild(chip);
+    });
+
+    renderCustomList();
+  }
+
+  function renderCustomList(){
+    const wrap = document.getElementById("custom-list");
+    wrap.innerHTML = "";
+    if(state.custom.length === 0){
+      wrap.appendChild(el("p","empty-note","// todavía no has agregado preguntas"));
+      return;
+    }
+    state.custom.slice().reverse().forEach(q => {
+      const row = el("div","custom-row");
+      row.innerHTML =
+        '<div class="txt"><span class="ar" style="color:'+colorForArea(q.area)+'">'+escapeHtml(q.area)+'</span>' +
+        '<span class="q">'+escapeHtml(q.q)+'</span></div>';
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-danger btn-sm";
+      delBtn.textContent = "Eliminar";
+      delBtn.addEventListener("click", () => deleteCustomQuestion(q.id));
+      row.appendChild(delBtn);
+      wrap.appendChild(row);
+    });
+  }
+
+  async function deleteCustomQuestion(id){
+    state.custom = state.custom.filter(q => q.id !== id);
+    rebuildAll();
+    await saveCustomQuestions(state.custom);
+    renderManage();
+  }
+
+  async function handleSaveQuestion(){
+    const feedback = document.getElementById("manage-feedback");
+    let area = document.getElementById("f-area").value;
+    if(area === "__new__"){
+      area = document.getElementById("f-newarea").value.trim();
+      if(!area){
+        feedback.style.color = "var(--red)";
+        feedback.textContent = "Escribe el nombre de la nueva área.";
+        return;
+      }
+    }
+
+    const qText = document.getElementById("f-question").value.trim();
+    const optionInputs = Array.from(document.querySelectorAll(".f-option-text"));
+    const options = optionInputs.map(i => i.value.trim());
+    const correctRadio = document.querySelector('input[name="f-correct"]:checked');
+    const weightRaw = parseFloat(document.getElementById("f-weight").value);
+    const weight = isNaN(weightRaw) || weightRaw <= 0 ? 1 : weightRaw;
+
+    if(!qText || options.some(o => !o) || !correctRadio){
+      feedback.style.color = "var(--red)";
+      feedback.textContent = "Completa la pregunta, las 4 opciones y marca la correcta.";
+      return;
+    }
+
+    const newQ = {
+      id: "custom-" + Date.now() + "-" + Math.floor(Math.random()*1000),
+      area: area,
+      q: qText,
+      options: options,
+      correct: parseInt(correctRadio.value, 10),
+      weight: weight,
+      builtin: false
+    };
+
+    state.custom.push(newQ);
+    rebuildAll();
+    if(!state.selectedAreas.has(area)) state.selectedAreas.add(area);
+    await saveCustomQuestions(state.custom);
+
+    feedback.style.color = "var(--green)";
+    feedback.textContent = "Pregunta guardada en el área \"" + area + "\".";
+    renderManage();
+  }
+
+  /* ======================================================
+     6. EVENTOS GLOBALES
+     ====================================================== */
+  document.getElementById("btn-start").addEventListener("click", goToRegister);
+
+  /* ---------- REGISTRO DE PARTICIPANTE ---------- */
+  function goToRegister(){
+    document.getElementById("reg-error").textContent = "";
+    showView("register");
+  }
+
+  document.getElementById("btn-reg-back").addEventListener("click", () => showView("home"));
+
+  document.getElementById("reg-photo-input").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      state.participant.photo = ev.target.result;
+      const img = document.getElementById("reg-photo-preview");
+      img.src = ev.target.result;
+      img.classList.remove("hidden");
+      document.getElementById("reg-photo-placeholder").classList.add("hidden");
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById("btn-reg-continue").addEventListener("click", () => {
+    const name = document.getElementById("reg-name").value.trim();
+    const doc = document.getElementById("reg-doc").value.trim();
+    const email = document.getElementById("reg-email").value.trim();
+    const errorEl = document.getElementById("reg-error");
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if(!name){ errorEl.textContent = "Escribe tu nombre completo."; return; }
+    if(!doc){ errorEl.textContent = "Escribe tu documento de identidad."; return; }
+    if(!emailOk){ errorEl.textContent = "Escribe un correo institucional válido."; return; }
+    if(!state.participant.photo){ errorEl.textContent = "Toma o sube una foto antes de continuar."; return; }
+
+    errorEl.textContent = "";
+    state.participant.name = name;
+    state.participant.doc = doc;
+    state.participant.email = email;
+
+    announceAndStart();
+  });
+  document.getElementById("btn-goto-manage").addEventListener("click", () => { showView("manage"); renderManage(); });
+  document.getElementById("btn-back-home").addEventListener("click", () => { showView("home"); renderHome(); });
+  document.getElementById("btn-next").addEventListener("click", goNext);
+  document.getElementById("btn-prev").addEventListener("click", goPrev);
+  document.getElementById("btn-retry").addEventListener("click", () => { showView("home"); renderHome(); });
+  document.getElementById("btn-save-question").addEventListener("click", handleSaveQuestion);
+  document.getElementById("f-area").addEventListener("change", (e) => {
+    document.getElementById("f-newarea-wrap").style.display = e.target.value === "__new__" ? "block" : "none";
+  });
+  document.getElementById("btn-filter-all").addEventListener("click", () => { state.reviewFilter = "all"; renderReviewList(); });
+  document.getElementById("btn-filter-wrong").addEventListener("click", () => { state.reviewFilter = "wrong"; renderReviewList(); });
+
+  /* ======================================================
+     7. INICIALIZACIÓN
+     ====================================================== */
+  async function init(){
+    state.custom = await loadCustomQuestions();
+    rebuildAll();
+    areasList().forEach(a => state.selectedAreas.add(a));
+    renderHome();
+    showView("home");
+  }
+  init();
+})();
+</script>
+</body>
+</html>
